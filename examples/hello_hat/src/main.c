@@ -28,6 +28,7 @@ static void display_task(void *arg) {
 
     init_display();
     printf("Initializing display\n");
+
     static int counter = 0; 
 
     while(1) {
@@ -49,7 +50,7 @@ static void buzzer_task(void *arg) {
     printf("Initializing buzzer\n");
 
     while(1){
-        buzzer_play_tone (440, 500);
+        buzzer_play_tone (622, 500);
         vTaskDelay(pdMS_TO_TICKS(6000));
     }
 }
