@@ -559,9 +559,9 @@ uint32_t veml6030_read_light() {
 
     uint8_t txBuffer[] = {VEML6030_ALS_REG};
     uint8_t rxBuffer[2];
-    i2c_write_blocking(i2c_default, VEML6030_I2C_ADDR, txBuffer, 1, true); // lol could handle the error code later...
+    i2c_write_blocking(i2c_default, VEML6030_I2C_ADDR, txBuffer, 1, true);
     i2c_read_blocking(i2c_default, VEML6030_I2C_ADDR, rxBuffer, 2, false);
-    printf("Read: %02x00 | %04x\n", rxBuffer[MSB], rxBuffer[LSB]);
+    //printf("Read: %02x00 | %04x\n", rxBuffer[MSB], rxBuffer[LSB]);    // for debugging
     uint16_t als_data = rxBuffer[1] << 8;
     als_data += rxBuffer[0];
 
@@ -573,10 +573,11 @@ uint32_t veml6030_read_light() {
                             (.0000000093924 * (pow(luxVal_uncorrected, 3))) + 
                             (.000081488 * (pow(luxVal_uncorrected,2))) + 
                             (1.0023 * luxVal_uncorrected);
+        //printf("luxVal (corrected): %d\n", luxVal);   // for debugging
         return luxVal;
     }
 
-    printf("luxVal: %d", luxVal_uncorrected);
+    //printf("luxVal: %d\n", luxVal_uncorrected);   // for debugging
     return  luxVal_uncorrected;
 }
 
