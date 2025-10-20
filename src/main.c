@@ -10,9 +10,9 @@
 #include <task.h>
 #include <tusb.h>
 
-#include "class/cdc/cdc_device.h"
+//#include "class/cdc/cdc_device.h"
 #include "tkjhat/sdk.h"
-#include "usb-serial-debug/helper.h"
+#include "usbSerialDebug/helper.h"
 
 // Exercise 4. Include the libraries necessaries to use the usb-serial-debug, and tinyusb
 // Tehtävä 4 . Lisää usb-serial-debugin ja tinyusbin käyttämiseen tarvittavat kirjastot.
@@ -104,6 +104,7 @@ static void print_task(void *arg){
         //tight_loop_contents();
         if (programState == DATA_READY) {
             programState = WAITING;
+            usb_serial_print("TESTI");
             tud_cdc_n_write(CDC_ITF_TX, (uint_fast8_t const *) "TESTI\n", 7);
             tud_cdc_n_write_flush(CDC_ITF_TX);
         }
@@ -143,14 +144,14 @@ static void print_task(void *arg){
 // Exercise 4: Uncomment the following line to activate the TinyUSB library.  
 // Tehtävä 4:  Poista seuraavan rivin kommentointi aktivoidaksesi TinyUSB-kirjaston. 
 
-/*
+
 static void usbTask(void *arg) {
     (void)arg;
     while (1) {
         tud_task();              // With FreeRTOS wait for events
                                  // Do not add vTaskDelay. 
     }
-}*/
+}
 
 int main() {
 
@@ -165,7 +166,7 @@ int main() {
     //             Lisää CMakeLists.txt-tiedostoon cfg-dual-usbcdc
     //             Poista CMakeLists.txt-tiedostosta käytöstä pico_enable_stdio_usb
 
-    stdio_init_all();
+    //stdio_init_all();
 
     // Uncomment this lines if you want to wait till the serial monitor is connected
     /*while (!stdio_usb_connected()){
@@ -180,8 +181,7 @@ int main() {
     // Tehtävä 1:  Alusta painike ja LEd ja rekisteröi vastaava keskeytys.
     //             Keskeytyskäsittelijä on määritelty yläpuolella nimellä btn_fxn
     init_led_button();
-    tusb_init();
-    usb_serial_init();
+
 
     
     TaskHandle_t hSensorTask, hPrintTask, hUSB = NULL;
@@ -190,12 +190,11 @@ int main() {
     // Tehtävä 4: Poista tämän xTaskCreate-rivin kommentointi luodaksesi tehtävän,
     // joka mahdollistaa kaksikanavaisen USB-viestinnän.
 
-    /*
+    
     xTaskCreate(usbTask, "usb", 2048, NULL, 3, &hUSB);
     #if (configNUMBER_OF_CORES > 1)
         vTaskCoreAffinitySet(hUSB, 1u << 0);
     #endif
-    */
 
 
     // Create the tasks with xTaskCreate
@@ -221,6 +220,9 @@ int main() {
         usb_serial_print("Print Task creation failed\n");
         return 0;
     }
+    
+    tusb_init();
+    usb_serial_init();
 
     // Start the scheduler (never returns)
     vTaskStartScheduler();
