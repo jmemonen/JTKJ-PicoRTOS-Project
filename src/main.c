@@ -1,4 +1,5 @@
 
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -7,8 +8,11 @@
 #include <FreeRTOS.h>
 #include <queue.h>
 #include <task.h>
+#include <tusb.h>
 
+#include "class/cdc/cdc_device.h"
 #include "tkjhat/sdk.h"
+#include "usb-serial-debug/helper.h"
 
 // Exercise 4. Include the libraries necessaries to use the usb-serial-debug, and tinyusb
 // Tehtävä 4 . Lisää usb-serial-debugin ja tinyusbin käyttämiseen tarvittavat kirjastot.
@@ -99,8 +103,9 @@ static void print_task(void *arg){
         //             Do not forget to comment next line of code.
         //tight_loop_contents();
         if (programState == DATA_READY) {
-            printf("Lux:%d\n", ambientLight);
             programState = WAITING;
+            tud_cdc_n_write(CDC_ITF_TX, (uint_fast8_t const *) "TESTI\n", 7);
+            tud_cdc_n_write_flush(CDC_ITF_TX);
         }
 
 
@@ -175,6 +180,9 @@ int main() {
     // Tehtävä 1:  Alusta painike ja LEd ja rekisteröi vastaava keskeytys.
     //             Keskeytyskäsittelijä on määritelty yläpuolella nimellä btn_fxn
     init_led_button();
+    tusb_init();
+    usb_serial_init();
+
     
     TaskHandle_t hSensorTask, hPrintTask, hUSB = NULL;
 
@@ -199,7 +207,7 @@ int main() {
                 &hSensorTask);                   // (en) A handle to control the execution of this task
 
     if(result != pdPASS) {
-        printf("Sensor task creation failed\n");
+        usb_serial_print("Sensor task creation failed\n");
         return 0;
     }
     result = xTaskCreate(print_task,  // (en) Task function
@@ -210,7 +218,7 @@ int main() {
                 &hPrintTask);         // (en) A handle to control the execution of this task
 
     if(result != pdPASS) {
-        printf("Print Task creation failed\n");
+        usb_serial_print("Print Task creation failed\n");
         return 0;
     }
 
